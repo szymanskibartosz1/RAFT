@@ -1,1 +1,5 @@
-# RAFT
+# Temat projektu
+
+Tematem projektu jest stworzenie systemu "MythBuster" – narzędzia do fact-checkingu, opartego na architekturze RAFT (Retrieval-Augmented Fine Tuning). Wybór tematu podyktowany jest ograniczeniami standardowych systemów RAG, które w przypadku sprzecznych dokumentów często zawodzą, próbując uśredniać informacje i łącząc fakty z fałszywymi teoriami. Celem projektu jest rozwiązanie tego problemu poprzez zbudowanie modelu, który nie tylko generuje tekst na podstawie dokumentów, ale potrafi też dokonać krytycznej analizy, tzn. potrafi identyfikować szum, odrzucać niewiarygodne źródła i opierać swoje wnioski wyłącznie na rzetelnej wiedzy naukowej.
+
+Projekt skupia się na stworzeniu autorskiego zbioru danych treningowych, w którym zapytania parowane są z tzw. "Złotymi Dokumentami" (naukowymi dowodami) oraz celowo wprowadzonymi "Dystraktorami" (popularnymi mitami i dezinformacją). Dodatkowo praca objemie fine-tuning wybranego modelu open-source, mający na celu wyuczenie go specyficznego formatu odpowiedzi opartego na Chain-of-Thought. Ostateczny system musi umieć precyzyjnie cytować wiarygodne fragmenty, logicznie argumentować błędy w materiałach z dezinformacją lub mitami i na tej podstawie budować bezstronne odpowiedzi.
