@@ -25,3 +25,15 @@ Eksperyment polega na porównaniu ze sobą dwóch rozwiązań przy pomocy wyżej
     * *Złote dokumenty*" weźmiemy ze sprawdzonych, polskich źródeł.
     * *Dystraktory*: Wygenerujemy je z pomocą LLM'ów tak, aby imitowały typowe chwyty teorii spiskowych.
 Model przygotuje poprawne odpowiedzi w formacie Chain-of-Thought. Chodzi o to, żeby w zbiorze treningowym docelowy model widział, jak ignorować fałszywy szum krok po kroku.
+
+## Podział prac
+
+* **Osoba 1:** Przygotowanie zbiorów treningowych.
+* **Osoba 2:** Przeprowadzenie właściwego fine-tuning modelu.
+* **Osoba 3:** Przeprowadzenie testów początkowe i policzenie metryk
+
+**Plan kamieni milowych**
+* **do 05.05:** Zebranie danych i przygotowanie zbioru treningowego
+* **do 20.05:** Przygotowanie i wytrenowanie modelu RAFT
+* **do 05.06:** Przeprowadzenie oceny modelu oraz przygotowanie wyników i wniosków.
+
