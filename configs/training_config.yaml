@@ -1,0 +1,53 @@
+# RAFT Training Configuration
+# Model: Mistral 7B with QLoRA on Google Colab T4
+
+model:
+  name: "unsloth/mistral-7b-v0.3-bnb-4bit"
+  max_seq_length: 2048
+  dtype: null  # auto-detect
+  load_in_4bit: true
+
+lora:
+  r: 16
+  lora_alpha: 32
+  lora_dropout: 0.0
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+  bias: "none"
+  use_gradient_checkpointing: "unsloth"
+
+training:
+  num_train_epochs: 5
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 4
+  learning_rate: 2.0e-4
+  lr_scheduler_type: "cosine"
+  warmup_steps: 10
+  weight_decay: 0.01
+  max_grad_norm: 1.0
+  fp16: true
+  logging_steps: 10
+  save_steps: 50
+  seed: 42
+  output_dir: "./outputs"
+
+dataset:
+  oracle_ratio: 0.8  # P% - proportion with golden doc in context
+  num_distractors: 4
+  chunk_size: 400
+  chunk_overlap: 50
+
+evaluation:
+  test_size: 50
+  num_distractors_eval: 4
+  metrics:
+    - faithfulness
+    - answer_correctness
+    - context_precision
+    - conspiracy_rejection_rate
