@@ -1,90 +1,14 @@
-"""
-Moduł ewaluacji: porównanie RAFT vs RAG baseline.
-Implementuje metryki: Faithfulness, Answer Correctness, Context Precision,
-Conspiracy Rejection Rate (custom).
-"""
-
 import json
 import re
 from pathlib import Path
 from typing import Optional
-
 import numpy as np
 
 
-# ─────────────────────────────────────────────────────────────
 # Custom metryka: Conspiracy Rejection Rate (CRR)
-# ─────────────────────────────────────────────────────────────
 
 
-def compute_conspiracy_rejection_rate(
-    predictions: list[str],
-    contexts: list[str],
-    golden_docs: list[str],
-) -> dict:
-    """
-    Oblicza Conspiracy Rejection Rate (CRR).
-
-    CRR = odsetek przypadków, w których model:
-    1. NIE cytuje/parafrazuje dystraktorów spiskowych
-    2. Poprawnie identyfikuje dezinformację
-    3. Opiera werdykt na golden doc (jeśli dostępny)
-
-    Returns:
-        dict z metrykami CRR
-    """
-    n_total = len(predictions)
-    n_rejected = 0
-    n_cited_golden = 0
-    n_identified_disinfo = 0
-
-    # Słowa kluczowe typowe dla identyfikacji dezinformacji
-    rejection_keywords = [
-        "fałsz", "nieprawda", "dezinformacja", "mit", "błędne",
-        "brak dowodów", "nie ma podstaw", "teoria spiskowa",
-        "nieuzasadnione", "manipulacja", "fake", "obalony",
-    ]
-
-    # Słowa kluczowe typowe dla akceptacji spisku
-    acceptance_keywords = [
-        "ukrywają", "nie chcą żebyśmy wiedzieli", "prawda jest taka że rząd",
-        "big pharma kontroluje", "celowo", "spisek",
-    ]
-
-    for pred, context, golden in zip(predictions, contexts, golden_docs):
-        pred_lower = pred.lower()
-
-        # Czy model odrzuca dezinformację?
-        has_rejection = any(kw in pred_lower for kw in rejection_keywords)
-        has_acceptance = any(kw in pred_lower for kw in acceptance_keywords)
-
-        if has_rejection and not has_acceptance:
-            n_rejected += 1
-
-        # Czy model cytuje golden doc?
-        if "##begin_quote##" in pred:
-            quotes = re.findall(r"##begin_quote##(.+?)##end_quote##", pred, re.DOTALL)
-            for quote in quotes:
-                quote_clean = quote.strip().lower()[:50]
-                if golden and quote_clean in golden.lower():
-                    n_cited_golden += 1
-                    break
-
-        # Czy model identyfikuje dezinformację w kontekście?
-        if has_rejection:
-            n_identified_disinfo += 1
-
-    return {
-        "conspiracy_rejection_rate": n_rejected / n_total if n_total > 0 else 0,
-        "golden_citation_rate": n_cited_golden / n_total if n_total > 0 else 0,
-        "disinfo_identification_rate": n_identified_disinfo / n_total if n_total > 0 else 0,
-        "n_samples": n_total,
-    }
-
-
-# ─────────────────────────────────────────────────────────────
 # LLM-as-a-Judge (via Gemini)
-# ─────────────────────────────────────────────────────────────
 
 JUDGE_PROMPT = """Jesteś sędzią oceniającym jakość odpowiedzi na pytanie dotyczące weryfikacji faktów.
 
@@ -168,29 +92,19 @@ def run_evaluation_suite(
         "comparison": {},
     }
 
-    # 1. Conspiracy Rejection Rate
-    raft_crr = compute_conspiracy_rejection_rate(
-        raft_predictions, test_contexts, test_golden_docs
-    )
-    rag_crr = compute_conspiracy_rejection_rate(
-        rag_predictions, test_contexts, test_golden_docs
-    )
-    results["raft_metrics"]["crr"] = raft_crr
-    results["rag_metrics"]["crr"] = rag_crr
-
-    # 2. Podstawowe metryki tekstowe
+    # Podstawowe metryki tekstowe
     raft_avg_len = np.mean([len(p.split()) for p in raft_predictions])
     rag_avg_len = np.mean([len(p.split()) for p in rag_predictions])
     results["raft_metrics"]["avg_response_length"] = float(raft_avg_len)
     results["rag_metrics"]["avg_response_length"] = float(rag_avg_len)
 
-    # 3. Quote usage
+    # Quote usage
     raft_quotes = sum(1 for p in raft_predictions if "##begin_quote##" in p)
     rag_quotes = sum(1 for p in rag_predictions if "##begin_quote##" in p)
     results["raft_metrics"]["quote_usage_rate"] = raft_quotes / len(raft_predictions)
     results["rag_metrics"]["quote_usage_rate"] = rag_quotes / len(rag_predictions)
 
-    # 4. LLM-as-a-Judge (opcjonalnie)
+    # 4. LLM-as-a-Judge 
     if judge_model:
         judge_results = []
         for q, ctx, pred_raft, pred_rag in zip(
@@ -231,9 +145,7 @@ def run_evaluation_suite(
     return results
 
 
-# ─────────────────────────────────────────────────────────────
-# Ragas Integration (opcjonalna, jeśli zainstalowane)
-# ─────────────────────────────────────────────────────────────
+# Ragas Integratio
 
 
 def evaluate_with_ragas(
@@ -243,9 +155,7 @@ def evaluate_with_ragas(
     ground_truths: list[str],
 ) -> Optional[dict]:
     """
-    Ewaluacja z użyciem biblioteki Ragas.
-    Wymaga: pip install ragas
-    """
+    Ewaluacja z użyciem biblioteki Ragas.    """
     try:
         from datasets import Dataset
         from ragas import evaluate
@@ -270,16 +180,13 @@ def evaluate_with_ragas(
         return result.to_pandas().to_dict()
 
     except ImportError:
-        print("Ragas nie zainstalowane. Użyj: pip install ragas")
         return None
     except Exception as e:
         print(f"Błąd Ragas: {e}")
         return None
 
 
-# ─────────────────────────────────────────────────────────────
 # Zapis wyników
-# ─────────────────────────────────────────────────────────────
 
 
 def save_results(results: dict, filepath: str) -> None:
@@ -287,7 +194,6 @@ def save_results(results: dict, filepath: str) -> None:
     path = Path(filepath)
     path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Konwersja numpy types do Python native
     def convert(obj):
         if isinstance(obj, (np.integer,)):
             return int(obj)
@@ -304,7 +210,7 @@ def save_results(results: dict, filepath: str) -> None:
 
 
 def print_comparison_table(results: dict) -> None:
-    """Drukuje tabelę porównawczą RAFT vs RAG."""
+    """RAFT vs RAG."""
     print("\n" + "=" * 70)
     print("  PORÓWNANIE: RAFT vs RAG BASELINE")
     print("=" * 70)
