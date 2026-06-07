@@ -5,9 +5,6 @@ from typing import Optional
 import numpy as np
 
 
-# Custom metryka: Conspiracy Rejection Rate (CRR)
-
-
 # LLM-as-a-Judge (via Gemini)
 
 JUDGE_PROMPT = """Jesteś sędzią oceniającym jakość odpowiedzi na pytanie dotyczące weryfikacji faktów.
