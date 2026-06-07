@@ -1,7 +1,5 @@
 """
-Moduł budowy zbioru treningowego RAFT.
-Generuje krotki {Q, Context, A*} z wykorzystaniem Gemini Pro jako modelu nauczycielskiego.
-Implementuje regułę P% (oracle ratio) do podziału danych.
+Budowa zbioru treningowego.
 """
 
 import json
@@ -10,12 +8,9 @@ import random
 import time
 from pathlib import Path
 from typing import Optional
-
 from tqdm import tqdm
 
-# ─────────────────────────────────────────────────────────────
 # Konfiguracja Gemini
-# ─────────────────────────────────────────────────────────────
 
 
 def get_gemini_model(api_key: Optional[str] = None, model_name: str = "gemini-1.5-pro"):
@@ -24,24 +19,20 @@ def get_gemini_model(api_key: Optional[str] = None, model_name: str = "gemini-1.
 
     key = api_key or os.environ.get("GEMINI_API_KEY")
     if not key:
-        raise ValueError("Ustaw GEMINI_API_KEY w zmiennej środowiskowej lub podaj jako argument.")
+        raise ValueError("brak GEMINI_API_KEY w zmiennej środowiskowej")
 
     genai.configure(api_key=key)
     model = genai.GenerativeModel(model_name)
     return model
 
 
-# ─────────────────────────────────────────────────────────────
 # Chunking dokumentów
-# ─────────────────────────────────────────────────────────────
-
 
 def chunk_document(doc: dict, chunk_size: int = 400, chunk_overlap: int = 50) -> list[dict]:
-    """Dzieli dokument na mniejsze fragmenty."""
+    """Chunkuje dokumenty"""
     content = doc["content"]
     chunks = []
 
-    # Prosty podział na zdania, potem grupowanie
     sentences = content.replace("\n", " ").split(". ")
     current_chunk = ""
 
@@ -56,7 +47,7 @@ def chunk_document(doc: dict, chunk_size: int = 400, chunk_overlap: int = 50) ->
                 "content": current_chunk.strip(),
                 "chunk_id": len(chunks),
             })
-            # Overlap: zachowaj ostatnie zdanie
+            
             overlap_sentences = current_chunk.split(". ")
             current_chunk = ". ".join(overlap_sentences[-2:]) + ". " if len(overlap_sentences) > 1 else ""
 
@@ -72,9 +63,7 @@ def chunk_document(doc: dict, chunk_size: int = 400, chunk_overlap: int = 50) ->
     return chunks if chunks else [doc]
 
 
-# ─────────────────────────────────────────────────────────────
 # Generowanie pytań i odpowiedzi via Gemini
-# ─────────────────────────────────────────────────────────────
 
 QUESTION_GENERATION_PROMPT = """Jesteś ekspertem od weryfikacji faktów medycznych i naukowych.
 Na podstawie poniższego dokumentu naukowego/fact-checkingowego, wygeneruj {n_questions} pytań,
@@ -158,7 +147,7 @@ def generate_questions(model, document: dict, n_questions: int = 3) -> list[str]
             return [q for q in questions if isinstance(q, str) and len(q) > 10]
 
     except Exception as e:
-        print(f"Błąd generowania pytań: {e}")
+        print(f"Błąd generowania pytań {e}")
 
     return []
 
@@ -207,9 +196,7 @@ def generate_synthetic_distractors(
     return []
 
 
-# ─────────────────────────────────────────────────────────────
 # Budowa datasetu RAFT
-# ─────────────────────────────────────────────────────────────
 
 
 def build_context(
@@ -217,7 +204,7 @@ def build_context(
     distractors: list[dict],
     include_oracle: bool,
 ) -> str:
-    """Buduje kontekst z dokumentów (z lub bez wyroczni)."""
+    """Buduje kontekst z dokumentów"""
     docs = []
 
     if include_oracle and golden_doc:
@@ -249,11 +236,11 @@ def build_raft_dataset(
     Args:
         golden_docs: Lista dokumentów wyroczni (chunked)
         distractors_pool: Pula dokumentów dystraktorów
-        model: Model Gemini do generowania Q i A*
+        model: Model Gemin
         oracle_ratio: P% - proporcja przykładów z wyrocznią w kontekście
         n_questions_per_doc: Ile pytań generować per dokument
         n_distractors: Ile dystraktorów w kontekście
-        delay: Opóźnienie między wywołaniami API (rate limiting)
+        delay: Opóźnienie między wywołaniami API 
         use_synthetic_distractors: Czy generować dodatkowe dystraktory via Gemini
     """
     dataset = []
@@ -313,9 +300,7 @@ def build_raft_dataset(
     return dataset
 
 
-# ─────────────────────────────────────────────────────────────
 # Formatowanie do promptu treningowego
-# ─────────────────────────────────────────────────────────────
 
 TRAINING_PROMPT_TEMPLATE = """### Instruction:
 Jesteś ekspertem od weryfikacji faktów. Na podstawie podanego kontekstu odpowiedz na pytanie.
