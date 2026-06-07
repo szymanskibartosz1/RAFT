@@ -4,9 +4,6 @@ from pathlib import Path
 from typing import Optional
 import numpy as np
 
-
-# LLM-as-a-Judge (via Gemini)
-
 JUDGE_PROMPT = """Jesteś sędzią oceniającym jakość odpowiedzi na pytanie dotyczące weryfikacji faktów.
 
 Pytanie: {question}
@@ -143,8 +140,6 @@ def run_evaluation_suite(
 
 
 # Ragas Integratio
-
-
 def evaluate_with_ragas(
     questions: list[str],
     answers: list[str],
@@ -184,9 +179,7 @@ def evaluate_with_ragas(
 
 
 # Zapis wyników
-
-
-def save_results(results: dict, filepath: str) -> None:
+  def save_results(results: dict, filepath: str) -> None:
     """Zapisuje wyniki ewaluacji do JSON."""
     path = Path(filepath)
     path.parent.mkdir(parents=True, exist_ok=True)
