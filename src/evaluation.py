@@ -4,6 +4,62 @@ from pathlib import Path
 from typing import Optional
 import numpy as np
 
+# Custom metryka: Conspiracy Rejection Rate (CRR)
+def compute_conspiracy_rejection_rate(predictions: list[str], contexts: list[str],golden_docs: list[str],) -> dict:
+    """Oblicza Conspiracy Rejection Rate (CRR).
+    CRR = odsetek przypadków, w których model:
+    1. NIE cytuje/parafrazuje dystraktorów spiskowych
+    2. Poprawnie identyfikuje dezinformację
+    3. Opiera werdykt na golden doc (jeśli dostępny)
+    
+    Returns:
+        dict z metrykami CRR
+
+    """
+
+    n_total = len(predictions)
+    n_rejected = 0
+    n_cited_golden = 0
+    n_identified_disinfo = 0
+
+    # Słowa kluczowe typowe dla identyfikacji dezinformacji
+
+    rejection_keywords = [
+        "fałsz", "nieprawda", "dezinformacja", "mit", "błędne",
+        "brak dowodów", "nie ma podstaw", "teoria spiskowa",
+        "nieuzasadnione", "manipulacja", "fake", "obalony",
+    ]
+  
+    # Słowa kluczowe typowe dla akceptacji spisku
+    acceptance_keywords = ["ukrywają", "nie chcą żebyśmy wiedzieli", "prawda jest taka że rząd","big pharma kontroluje", "celowo", "spisek",]
+    for pred, context, golden in zip(predictions, contexts, golden_docs):
+        pred_lower = pred.lower()
+       # Czy model odrzuca dezinformację?
+        has_rejection = any(kw in pred_lower for kw in rejection_keywords)
+        has_acceptance = any(kw in pred_lower for kw in acceptance_keywords)
+        if has_rejection and not has_acceptance:
+
+            n_rejected += 1
+        # Czy model cytuje golden doc?
+        if "##begin_quote##" in pred:
+            quotes = re.findall(r"##begin_quote##(.+?)##end_quote##", pred, re.DOTALL)
+            for quote in quotes:
+                quote_clean = quote.strip().lower()[:50]
+                if golden and quote_clean in golden.lower():
+                    n_cited_golden += 1
+                    break
+        # Czy model identyfikuje dezinformację w kontekście?
+        if has_rejection:
+            n_identified_disinfo += 1
+
+    return {
+        "conspiracy_rejection_rate": n_rejected / n_total if n_total > 0 else 0,
+        "golden_citation_rate": n_cited_golden / n_total if n_total > 0 else 0,
+        "disinfo_identification_rate": n_identified_disinfo / n_total if n_total > 0 else 0,
+        "n_samples": n_total,
+    }
+
+
 JUDGE_PROMPT = """Jesteś sędzią oceniającym jakość odpowiedzi na pytanie dotyczące weryfikacji faktów.
 
 Pytanie: {question}
@@ -85,6 +141,16 @@ def run_evaluation_suite(
         "rag_metrics": {},
         "comparison": {},
     }
+
+    # Conspiracy Rejection Rate
+    raft_crr = compute_conspiracy_rejection_rate(
+        raft_predictions, test_contexts, test_golden_docs
+    )
+    rag_crr = compute_conspiracy_rejection_rate(
+        rag_predictions, test_contexts, test_golden_docs
+    )
+    results["raft_metrics"]["crr"] = raft_crr
+    results["rag_metrics"]["crr"] = rag_crr
 
     # Podstawowe metryki tekstowe
     raft_avg_len = np.mean([len(p.split()) for p in raft_predictions])
