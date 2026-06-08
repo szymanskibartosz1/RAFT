@@ -2,7 +2,7 @@
 
 Implementacja architektury **RAFT (Retrieval-Augmented Fine-Tuning)** do uodpornienia modelu językowego na polskojęzyczne teorie spiskowe (COVID-19/szczepionki).
 
-# Ostateczny model
+# Ostateczny wagi adaptera lora
 ```
 https://huggingface.co/szyszek1710/RAFT_MythBuster/tree/main
 ```
