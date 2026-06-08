@@ -245,7 +245,7 @@ def evaluate_with_ragas(
 
 
 # Zapis wyników
-  def save_results(results: dict, filepath: str) -> None:
+def save_results(results: dict, filepath: str) -> None:
     """Zapisuje wyniki ewaluacji do JSON."""
     path = Path(filepath)
     path.parent.mkdir(parents=True, exist_ok=True)
