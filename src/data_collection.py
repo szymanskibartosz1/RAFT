@@ -55,14 +55,14 @@ def save_documents(docs: list[dict], filepath: str) -> None:
     print(f"Zapisano {len(docs)} dokumentów do {filepath}")
 
 
-def batch_scrape(urls: list[str], scraper_fn, delay: float = 2.0) -> list[dict]:
-    """
-    Scraping wielu URL z opóźnieniem między requestami.
-    """
-    results = []
-    for url in tqdm(urls, desc="Scraping"):
-        doc = scraper_fn(url)
-        if doc:
-            results.append(doc)
-        time.sleep(delay)
-    return results
+# def batch_scrape(urls: list[str], scraper_fn, delay: float = 2.0) -> list[dict]:
+#     """
+#     Scraping URL z opóźnieniem między requestami.
+#     """
+#     results = []
+#     for url in tqdm(urls, desc="Scraping"):
+#         doc = scraper_fn(url)
+#         if doc:
+#             results.append(doc)
+#         time.sleep(delay)
+#     return results
