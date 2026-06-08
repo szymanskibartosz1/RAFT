@@ -25,18 +25,19 @@ Implementacja architektury **RAFT (Retrieval-Augmented Fine-Tuning)** do uodporn
 ## Quickstart
 
 ### 1. Przygotowanie danych
-```bash
-python src/data_collection.py  # Generuje sample data
+```
+src/data_collection.py
+notebooks/01_data_preparation.ipynb 
 ```
 
 ### 2. Generowanie datasetu RAFT (wymaga Gemini API key)
-Uruchom notebook: `notebooks/02_dataset_generation.ipynb`
+`notebooks/02_dataset_generation.ipynb`
 
 ### 3. Fine-tuning (Google Colab)
-Upload `notebooks/03_finetuning.ipynb` na Colab → Runtime: T4 GPU
+`notebooks/03_finetuning.ipynb`
 
 ### 4. Ewaluacja
-Uruchom notebook: `notebooks/04_evaluation.ipynb`
+`notebooks/04_evaluation.ipynb`
 
 ## Struktura projektu
 
@@ -68,7 +69,7 @@ RAFT/
 |:----------|:----------|
 | Model bazowy | Mistral 7B v0.3 (4-bit) |
 | Fine-tuning | Unsloth + QLoRA (r=16) |
-| Teacher model | Gemini 1.5 Pro (darmowy tier) |
+| Teacher model | Gemini 2.5 Pro (darmowy tier) |
 | Vector store | ChromaDB |
 | Embeddingi | paraphrase-multilingual-MiniLM-L12-v2 |
 | Ewaluacja | Custom CRR + LLM-as-a-Judge |
@@ -94,11 +95,6 @@ Model uczy się:
 | **Faithfulness** | Zgodność twierdzeń z kontekstem (Ragas) |
 | **LLM-as-a-Judge** | Blind comparison via Gemini Pro |
 
-## Wymagania sprzętowe
-
-- **Trening:** Google Colab T4 (16GB VRAM) — wystarczający
-- **Inferencja:** Dowolne GPU z 8GB+ VRAM (4-bit model)
-- **Generowanie datasetu:** CPU + Gemini API key
 
 ## Licencja
 
