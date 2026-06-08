@@ -2,26 +2,6 @@
 
 Implementacja architektury **RAFT (Retrieval-Augmented Fine-Tuning)** do uodpornienia modelu językowego na polskojęzyczne teorie spiskowe (COVID-19/szczepionki).
 
-## Architektura
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    RAFT Pipeline                             │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  [Pytanie] ──→ [Retrieval: ChromaDB] ──→ [Kontekst mieszany]│
-│                                              │               │
-│                    ┌─────────────────────────┘               │
-│                    ▼                                         │
-│  [Golden Doc D*] + [Dystraktory D₁...Dₖ] ──→ [RAFT Model]  │
-│                                                    │         │
-│                                                    ▼         │
-│                                        [Odpowiedź CoT z     │
-│                                         cytatami + odrzuce- │
-│                                         niem dezinformacji]  │
-└─────────────────────────────────────────────────────────────┘
-```
-
 ## Quickstart
 
 ### 1. Przygotowanie danych
@@ -30,10 +10,10 @@ src/data_collection.py
 notebooks/01_data_preparation.ipynb 
 ```
 
-### 2. Generowanie datasetu RAFT (wymaga Gemini API key)
+### 2. Generowanie datasetu RAFT 
 `notebooks/02_dataset_generation.ipynb`
 
-### 3. Fine-tuning (Google Colab)
+### 3. Fine-tuning 
 `notebooks/03_finetuning.ipynb`
 
 ### 4. Ewaluacja
@@ -84,7 +64,7 @@ Model uczy się:
 1. Identyfikować wiarygodne źródła w kontekście
 2. Cytować dosłownie (`##begin_quote##`)
 3. Odrzucać dezinformację z uzasadnieniem
-4. Polegać na wiedzy wewnętrznej, gdy brak złotego dokumentu
+4. Polegać na wiedzy wewnętrznej, gdy brakuje złotego dokumentu
 
 ## Metryki ewaluacji
 
@@ -94,8 +74,3 @@ Model uczy się:
 | **Golden Citation Rate** | % odpowiedzi cytujących wiarygodne źródło |
 | **Faithfulness** | Zgodność twierdzeń z kontekstem (Ragas) |
 | **LLM-as-a-Judge** | Blind comparison via Gemini Pro |
-
-
-## Licencja
-
-Projekt akademicki — Advanced Machine Learning, 2025/2026.
