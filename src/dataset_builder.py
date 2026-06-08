@@ -13,7 +13,7 @@ from tqdm import tqdm
 # Konfiguracja Gemini
 
 
-def get_gemini_model(api_key: Optional[str] = None, model_name: str = "gemini-1.5-pro"):
+def get_gemini_model(api_key: Optional[str] = None, model_name: str = "gemini-2.5-pro"):
     """Inicjalizuje model Gemini Pro."""
     import google.generativeai as genai
 
