@@ -1,7 +1,7 @@
 # Ignore
 #data/
 .venv
-outputs/
+#outputs/
 *.pyc
 __pycache__/
 .env
