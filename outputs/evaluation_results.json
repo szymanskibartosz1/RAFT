@@ -1,0 +1,44 @@
+{
+  "n_test_samples": 50,
+  "raft_metrics": {
+    "crr": {
+      "conspiracy_rejection_rate": 0.44,
+      "golden_citation_rate": 0.0,
+      "disinfo_identification_rate": 0.48,
+      "n_samples": 50
+    },
+    "avg_response_length": 164.78,
+    "quote_usage_rate": 0.9
+  },
+  "rag_metrics": {
+    "crr": {
+      "conspiracy_rejection_rate": 0.04,
+      "golden_citation_rate": 0.0,
+      "disinfo_identification_rate": 0.04,
+      "n_samples": 50
+    },
+    "avg_response_length": 120.4,
+    "quote_usage_rate": 0.52
+  },
+  "comparison": {
+    "llm_judge": {
+      "raft_wins": 43,
+      "rag_wins": 7,
+      "ties": 0,
+      "total_judged": 50,
+      "raft_win_rate": 0.86
+    },
+    "avg_raft_scores": {
+      "correctness": 4.16,
+      "rejection": 4.48,
+      "sources": 4.16,
+      "reasoning": 4.06
+    },
+    "avg_rag_scores": {
+      "correctness": 2.2,
+      "rejection": 1.46,
+      "sources": 1.96,
+      "reasoning": 1.4
+    }
+  }
+}
