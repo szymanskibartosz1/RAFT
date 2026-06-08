@@ -3,7 +3,6 @@
   "raft_metrics": {
     "crr": {
       "conspiracy_rejection_rate": 0.44,
-      "golden_citation_rate": 0.0,
       "disinfo_identification_rate": 0.48,
       "n_samples": 50
     },
@@ -13,7 +12,6 @@
   "rag_metrics": {
     "crr": {
       "conspiracy_rejection_rate": 0.04,
-      "golden_citation_rate": 0.0,
       "disinfo_identification_rate": 0.04,
       "n_samples": 50
     },

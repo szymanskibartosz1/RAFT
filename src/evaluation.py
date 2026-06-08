@@ -19,7 +19,7 @@ def compute_conspiracy_rejection_rate(predictions: list[str], contexts: list[str
 
     n_total = len(predictions)
     n_rejected = 0
-    n_cited_golden = 0
+    #n_cited_golden = 0
     n_identified_disinfo = 0
 
     # Słowa kluczowe typowe dla identyfikacji dezinformacji
@@ -41,20 +41,20 @@ def compute_conspiracy_rejection_rate(predictions: list[str], contexts: list[str
 
             n_rejected += 1
         # Czy model cytuje golden doc?
-        if "##begin_quote##" in pred:
-            quotes = re.findall(r"##begin_quote##(.+?)##end_quote##", pred, re.DOTALL)
-            for quote in quotes:
-                quote_clean = quote.strip().lower()[:50]
-                if golden and quote_clean in golden.lower():
-                    n_cited_golden += 1
-                    break
+        # if "##begin_quote##" in pred:
+        #     quotes = re.findall(r"##begin_quote##(.+?)##end_quote##", pred, re.DOTALL)
+        #     for quote in quotes:
+        #         quote_clean = quote.strip().lower()[:50]
+        #         if golden and quote_clean in golden.lower():
+        #             n_cited_golden += 1
+        #             break
         # Czy model identyfikuje dezinformację w kontekście?
         if has_rejection:
             n_identified_disinfo += 1
 
     return {
         "conspiracy_rejection_rate": n_rejected / n_total if n_total > 0 else 0,
-        "golden_citation_rate": n_cited_golden / n_total if n_total > 0 else 0,
+        # "golden_citation_rate": n_cited_golden / n_total if n_total > 0 else 0,
         "disinfo_identification_rate": n_identified_disinfo / n_total if n_total > 0 else 0,
         "n_samples": n_total,
     }
@@ -282,12 +282,6 @@ def print_comparison_table(results: dict) -> None:
     rag_crr = rag.get("crr", {}).get("conspiracy_rejection_rate", 0)
     delta = raft_crr - rag_crr
     print(f"{'Conspiracy Rejection Rate':<35} {raft_crr:<15.3f} {rag_crr:<15.3f} {delta:+.3f}")
-
-    # Golden citation
-    raft_gc = raft.get("crr", {}).get("golden_citation_rate", 0)
-    rag_gc = rag.get("crr", {}).get("golden_citation_rate", 0)
-    delta = raft_gc - rag_gc
-    print(f"{'Golden Citation Rate':<35} {raft_gc:<15.3f} {rag_gc:<15.3f} {delta:+.3f}")
 
     # Quote usage
     raft_qu = raft.get("quote_usage_rate", 0)
